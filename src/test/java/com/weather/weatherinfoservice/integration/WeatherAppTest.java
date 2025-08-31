@@ -60,7 +60,7 @@ public class WeatherAppTest {
         ResponseEntity<Map> response = restTemplate.postForEntity("/weather", createData, Map.class);
 
         assert(response.getStatusCode().value() == 201);
-        assert(response.getBody().get("success").equals(true));
+        assert(response.getBody() != null && response.getBody().get("success").equals(true));
     }
 
     // Add new weather data for existing city - Negative
@@ -71,7 +71,7 @@ public class WeatherAppTest {
         ResponseEntity<Map> response = restTemplate.postForEntity("/weather", createdData, Map.class);
 
         assert(response.getStatusCode().value() == 409);
-        assert(response.getBody() != null && response.getBody().get("message").toString().equals(createdData.getCity() + " city already exist in memory, try to add it for new city"));
+        assert(response.getBody() != null && response.getBody().get("message").toString().equals(createdData.getCity() + " already exist in memory, try to add it for new city"));
         assert(response.getBody().get("timestamp") != null);
     }
 

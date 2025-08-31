@@ -1,15 +1,13 @@
 package com.weather.weatherinfoservice.unit;
 
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.weather.weatherinfoservice.exceptions.CityAlreadyExistException;
 import com.weather.weatherinfoservice.exceptions.CityNotFoundException;
 import com.weather.weatherinfoservice.models.WeatherDataRequest;
 import com.weather.weatherinfoservice.models.WeatherDataResponse;
 import com.weather.weatherinfoservice.repositories.WeatherDataEntity;
 import com.weather.weatherinfoservice.repositories.WeatherRepository;
-import com.weather.weatherinfoservice.services.WeatherServiceExternal;
-import com.weather.weatherinfoservice.services.WeatherServiceInternal;
-import com.weather.weatherinfoservice.services.WeatherServiceReader;
+import com.weather.weatherinfoservice.services.WeatherDataExternalSource;
+import com.weather.weatherinfoservice.services.WeatherServiceImpl;
 import com.weather.weatherinfoservice.util.IdGenerator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,19 +27,19 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class WeatherServiceInternalTest {
+public class WeatherServiceImplTest {
 
     @Mock
     private WeatherRepository weatherRepository;
 
     @Spy
-    private WeatherServiceExternal weatherServiceExternal = new WeatherServiceExternal();
+    private WeatherDataExternalSource weatherDataExternalSource = new WeatherDataExternalSource();
 
     @Spy
     private IdGenerator idGenerator = new IdGenerator();
 
     @InjectMocks
-    private WeatherServiceInternal WeatherServiceInternal;
+    private WeatherServiceImpl WeatherServiceImpl;
 
     @ParameterizedTest
     @ValueSource(strings = {"Auckland", "Hamilton"})
@@ -56,7 +54,7 @@ public class WeatherServiceInternalTest {
         }
 
         // Act
-        WeatherDataResponse weatherDataResponse = WeatherServiceInternal.getWeatherData(mockData.getCity());
+        WeatherDataResponse weatherDataResponse = WeatherServiceImpl.getWeatherData(mockData.getCity());
 
         // Assert
         assertThat(weatherDataResponse).isNotNull();
@@ -74,7 +72,7 @@ public class WeatherServiceInternalTest {
         when(weatherRepository.findWeatherByCity(city)).thenReturn(Optional.empty());
 
         // Assert
-        assertThrows(CityNotFoundException.class, () -> WeatherServiceInternal.getWeatherData(city));
+        assertThrows(CityNotFoundException.class, () -> WeatherServiceImpl.getWeatherData(city));
         verify(weatherRepository).findWeatherByCity(city);
     }
 
@@ -85,7 +83,7 @@ public class WeatherServiceInternalTest {
         doThrow(new CityNotFoundException(city)).when(weatherRepository).findWeatherByCity(city);
 
         // Assert
-        assertThrows(CityNotFoundException.class, () -> WeatherServiceInternal.getWeatherData(city));
+        assertThrows(CityNotFoundException.class, () -> WeatherServiceImpl.getWeatherData(city));
         verify(weatherRepository).findWeatherByCity("Auckland");
     }
 
@@ -99,7 +97,7 @@ public class WeatherServiceInternalTest {
 
         // Act
         WeatherDataRequest request = new WeatherDataRequest("Hamilton", "11", "C", LocalDate.now(), "sunny");
-        WeatherDataResponse weatherDataEntity = WeatherServiceInternal.addWeatherData(request);
+        WeatherDataResponse weatherDataEntity = WeatherServiceImpl.addWeatherData(request);
 
         // Assert
         assertThat(weatherDataEntity).isNotNull();
@@ -121,7 +119,7 @@ public class WeatherServiceInternalTest {
         doThrow(new CityAlreadyExistException("city already exist")).when(weatherRepository).saveWeather(mockData.getCity(), mockData);
 
         // Assert
-        assertThrows(CityAlreadyExistException.class,() -> WeatherServiceInternal.addWeatherData(request));
+        assertThrows(CityAlreadyExistException.class,() -> WeatherServiceImpl.addWeatherData(request));
         verify(weatherRepository).saveWeather(mockData.getCity(), mockData);
     }
 
@@ -137,7 +135,7 @@ public class WeatherServiceInternalTest {
         when(weatherRepository.updateWeather(mockData.getCity(), mockData)).thenReturn(mockData);
 
         // Act
-        WeatherDataResponse weatherDataRequest = WeatherServiceInternal.updateWeatherData(request);
+        WeatherDataResponse weatherDataRequest = WeatherServiceImpl.updateWeatherData(request);
 
         // Assert
         assertThat(weatherDataRequest).isNotNull();
@@ -156,7 +154,7 @@ public class WeatherServiceInternalTest {
         when(weatherRepository.findWeatherByCity(mockData.getCity())).thenReturn(Optional.empty());
 
         // Assert
-        assertThrows(CityNotFoundException.class, () -> WeatherServiceInternal.updateWeatherData(mockData) );
+        assertThrows(CityNotFoundException.class, () -> WeatherServiceImpl.updateWeatherData(mockData) );
         verify(weatherRepository).findWeatherByCity(mockData.getCity());
 
     }
@@ -170,7 +168,7 @@ public class WeatherServiceInternalTest {
         doNothing().when(weatherRepository).deleteWeather(mockData.getCity());
 
         // Act
-        WeatherServiceInternal.deleteWeatherData(request.getCity());
+        WeatherServiceImpl.deleteWeatherData(request.getCity());
 
         // Assert;
         verify(weatherRepository).deleteWeather(mockData.getCity());
@@ -181,7 +179,7 @@ public class WeatherServiceInternalTest {
         String city = "Auckland";
         when(weatherRepository.findWeatherByCity(city)).thenReturn(Optional.empty());
 
-        assertThrows(CityNotFoundException.class, () -> WeatherServiceInternal.deleteWeatherData(city));
+        assertThrows(CityNotFoundException.class, () -> WeatherServiceImpl.deleteWeatherData(city));
         verify(weatherRepository).findWeatherByCity(city);
     }
 }

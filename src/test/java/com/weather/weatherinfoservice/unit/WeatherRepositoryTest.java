@@ -1,6 +1,5 @@
 package com.weather.weatherinfoservice.unit;
 
-import com.weather.weatherinfoservice.models.WeatherDataRequest;
 import com.weather.weatherinfoservice.repositories.WeatherDataEntity;
 import com.weather.weatherinfoservice.repositories.WeatherRepository;
 import org.junit.jupiter.api.BeforeEach;

@@ -6,8 +6,7 @@ import com.weather.weatherinfoservice.exceptions.CityAlreadyExistException;
 import com.weather.weatherinfoservice.exceptions.CityNotFoundException;
 import com.weather.weatherinfoservice.models.WeatherDataRequest;
 import com.weather.weatherinfoservice.models.WeatherDataResponse;
-import com.weather.weatherinfoservice.repositories.WeatherDataEntity;
-import com.weather.weatherinfoservice.services.WeatherServiceInternal;
+import com.weather.weatherinfoservice.services.WeatherServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +29,7 @@ public class WeatherControllerTest {
     private MockMvc mockMvc;
 
     @MockitoBean
-    private WeatherServiceInternal weatherServiceImpl;
+    private WeatherServiceImpl weatherServiceImpl;
 
     @Autowired
     private ObjectMapper objectMapper;
